@@ -40,7 +40,10 @@ class Users(SQLModel, Table=True):
     id: UUID = Field(sa_column=Column(
         postgresql.UUID, default=uuid4, primary_key=True))
 
-    name: str
+    name: str = Field(index=True, unique=True)
     nickname: str
     password_hashed: str
-    posts: list[Post] = Relationship(back_populates="creator", sa_relationship_kwargs={"lazy": "selectin", "cascade": "all, delete-orphan"})
+    posts: list[Post] = Relationship(back_populates="creator",
+                                     sa_relationship_kwargs={"lazy": "selectin",
+                                            "cascade": "all, delete-orphan"})
+    created_at: datetime

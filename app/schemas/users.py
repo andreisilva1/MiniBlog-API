@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel
 
 from app.database.models import Post
@@ -11,6 +12,7 @@ class CreateUser(BaseUser):
     password: str
     
 class ReadUser(BaseUser):
+    created_at: datetime
     posts: list[Post]
     
 class UpdateUser(BaseUser):
