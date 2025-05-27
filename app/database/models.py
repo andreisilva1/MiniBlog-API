@@ -1,11 +1,12 @@
 from enum import Enum
+from typing import List
 from uuid import UUID, uuid4
 from sqlalchemy import Column
 from sqlmodel import Field, Relationship, SQLModel
 from sqlalchemy.dialects import postgresql
 from datetime import datetime
 
-class Tags(Enum, str):
+class Tags(str, Enum):
     others = "Others"
     games = "Games"
     health = "Health"
@@ -23,10 +24,11 @@ class Tags(Enum, str):
     free_time = "Free Time"
     
    
-class Post(SQLModel, Table=True):
+class Post(SQLModel, table=True):
+    __tablename__= "post"
     id: int | None = Field(default=None, primary_key=True)
-    creator_id = UUID = Field(foreign_key="Users.id")
-    creator: "Users" = Relationship(back_populates="posts", sa_relationship_kwargs={"lazy": "selectin"})
+    creator_id: UUID = Field(foreign_key="user.id")
+    creator: "User" = Relationship(back_populates="posts", sa_relationship_kwargs={"lazy": "selectin"})
     tag: Tags | None = Field(default=Tags.others)
     title: str = Field(max_length=100)
     description: str = Field(max_length=2000)
@@ -36,14 +38,15 @@ class Post(SQLModel, Table=True):
     datetime: datetime
  
     
-class Users(SQLModel, Table=True):
+class User(SQLModel, table=True):
+    __tablename__= "user"
     id: UUID = Field(sa_column=Column(
-        postgresql.UUID, default=uuid4, primary_key=True))
+        postgresql.UUID, default=uuid4, primary_key=True, index=True))
 
-    name: str = Field(index=True, unique=True)
-    nickname: str
+    name: str
+    nickname: str = Field(index=True, unique=True)
     password_hashed: str
-    posts: list[Post] = Relationship(back_populates="creator",
+    posts: List["Post"] = Relationship(back_populates="creator",
                                      sa_relationship_kwargs={"lazy": "selectin",
                                             "cascade": "all, delete-orphan"})
     created_at: datetime

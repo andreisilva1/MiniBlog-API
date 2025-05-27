@@ -1,10 +1,10 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.database.models import Tags
 
 
 class BasePost(BaseModel):
-    tag: Tags
+    tag: Tags | None = Field(default=Tags.others)
     title: str
     description: str
 
