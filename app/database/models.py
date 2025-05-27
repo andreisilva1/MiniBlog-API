@@ -1,0 +1,46 @@
+from enum import Enum
+from uuid import UUID, uuid4
+from sqlalchemy import Column
+from sqlmodel import Field, Relationship, SQLModel
+from sqlalchemy.dialects import postgresql
+from datetime import datetime
+
+class Tags(Enum, str):
+    others = "Others"
+    games = "Games"
+    health = "Health"
+    technology = "Technology"
+    programming = "Programming"
+    finances = "Finances"
+    cience = "Cience"
+    arts = "Arts"
+    Sports = "Sports"
+    news = "News"
+    enternainment = "Enternainment"
+    culture = "Culture"
+    politics = "Politics"
+    at_home = "At Home"
+    free_time = "Free Time"
+    
+   
+class Post(SQLModel, Table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    creator_id = UUID = Field(foreign_key="Users.id")
+    creator: "Users" = Relationship(back_populates="posts", sa_relationship_kwargs={"lazy": "selectin"})
+    tag: Tags | None = Field(default=Tags.others)
+    title: str = Field(max_length=100)
+    description: str = Field(max_length=2000)
+    views: int = Field(default=0)
+    likes: int = Field(default=0)
+    dislikes: int = Field(default=0)
+    datetime: datetime
+ 
+    
+class Users(SQLModel, Table=True):
+    id: UUID = Field(sa_column=Column(
+        postgresql.UUID, default=uuid4, primary_key=True))
+
+    name: str
+    nickname: str
+    password_hashed: str
+    posts: list[Post] = Relationship(back_populates="creator", sa_relationship_kwargs={"lazy": "selectin", "cascade": "all, delete-orphan"})
