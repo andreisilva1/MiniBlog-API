@@ -3,11 +3,12 @@ from uuid import UUID, uuid4
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
-
 from app.database.models import User
 from app.api.schemas.user import CreateUser, DeleteUser, UpdateUser
 
 from passlib.context import CryptContext
+
+from app.utils import generate_access_token
 
 password_context = CryptContext(deprecated="auto", schemes="bcrypt")
 class UserService:
@@ -57,3 +58,16 @@ class UserService:
             await self.session.commit()
             return {"detail": f"The user {user.nickname} has been deleted."}
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No user has been found with the data provided.")
+    
+    
+    async def token(self, nickname, password):
+        user = await self.get(nickname)
+        if not user or not password_context.verify(password, user.password_hashed):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="The data provided is invalid.")
+        
+        token = generate_access_token({"user": {
+            "username": user.nickname,
+            "id": str(user.id)
+        }})
+        
+        return token

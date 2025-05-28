@@ -12,6 +12,15 @@ class DatabaseSettings(BaseSettings):
     POSTGRES_HOST: str
     POSTGRES_PORT: int
     
+    REDIS_HOST: str
+    REDIS_PORT: str
+    
     @property
     def db_url(self):
         return (f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}")
+    
+class SecuritySettings(BaseSettings):
+    model_config = _base_config
+    JWT_SECRET: str
+    JWT_ALGORITHM: str
+    
