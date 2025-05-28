@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
 from app.database.models import User
-from app.api.schemas.user import CreateUser, ReadUser
+from app.api.schemas.user import CreateUser, DeleteUser, UpdateUser
 
 from passlib.context import CryptContext
 
@@ -33,18 +33,27 @@ class UserService:
         await self.session.refresh(new_user)
         return await self.get(new_user.nickname)
     
-    async def update(self, id: UUID, user_update: dict):
-        user = self.get(User, id)
+    async def update(self, id: UUID, user_update: UpdateUser):
+        user = await self.session.get(User, id)
         if not user:
             raise HTTPException(status_code=status.
                     HTTP_404_NOT_FOUND("No user found with the id provided."))
-            
+        user_update = {**user_update.model_dump(exclude=["password"]), "password_hashed": password_context.hash(user_update.password)}
         for key, value in user_update.items():
             setattr(user, key, value)
         self.session.add(user)
-        self.session.commit()
-        self.session.refresh()
+        await self.session.commit()
+        await self.session.refresh(user)
         return await self.get(user.nickname)
     
-    async def delete(self, id: UUID):
-        return await self.session.delete(await self.get(User, id))
+    async def delete(self, delete_user: DeleteUser):
+        user = await self.session.execute(select(User).
+                                          where(User.name == delete_user.name, User.nickname == delete_user.nickname, User.id == delete_user.id))
+        user = user.scalar_one_or_none()
+        print(user)
+        print(delete_user)
+        if user and password_context.verify(delete_user.password, user.password_hashed):
+            await self.session.delete(await self.get(user.nickname))
+            await self.session.commit()
+            return {"detail": f"The user {user.nickname} has been deleted."}
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No user has been found with the data provided.")

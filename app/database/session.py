@@ -7,7 +7,7 @@ engine = create_async_engine(settings().db_url, echo=True)
 
 async def create_db_tables():
     async with engine.begin() as connection:
-        from .models import User, Post
+        from .models import User, Post #noqa
         print("Criando tabelas no banco...")
         await connection.run_sync(SQLModel.metadata.create_all)
         print("Tabelas criadas.")
