@@ -22,8 +22,8 @@ class UserService:
     
     
     async def add(self, user_create: CreateUser) -> User:
-        if self.get(user_create.nickname):
-            return None
+        if await self.get(user_create.nickname):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="The nickname given has already in use.")
         new_user = User(**user_create.model_dump(exclude=["password"]),
                                                  created_at=datetime.now(),
                                                  id=uuid4(),
