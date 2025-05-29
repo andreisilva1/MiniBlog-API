@@ -1,6 +1,5 @@
 from pydantic import BaseModel, Field, field_serializer
 from app.database.models import Tags
-from typing import Optional
 
 class BasePublication(BaseModel):
     tag: Tags | None = Field(default=Tags.others)

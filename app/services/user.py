@@ -47,17 +47,15 @@ class UserService:
         await self.session.refresh(user)
         return await self.get(user.nickname)
     
-    async def delete(self, delete_user: DeleteUser):
-        user = await self.session.execute(select(User).
-                                          where(User.name == delete_user.name, User.nickname == delete_user.nickname, User.id == delete_user.id))
-        user = user.scalar_one_or_none()
-        print(user)
-        print(delete_user)
-        if user and password_context.verify(delete_user.password, user.password_hashed):
-            await self.session.delete(await self.get(user.nickname))
+    async def delete(self, delete_user: DeleteUser, current_user: User):
+        if not current_user or not delete_user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="A error occurred. Verify if you are authenticated and provided a valid json.")
+        if password_context.verify(delete_user.password, current_user.password_hashed
+                                   ) and (delete_user.model_dump(exclude=["password"]) == current_user.model_dump(exclude=["password_hashed", "created_at"])):
+            await self.session.delete(await self.get(current_user.nickname))
             await self.session.commit()
-            return {"detail": f"The user {user.nickname} has been deleted."}
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No user has been found with the data provided.")
+            return {"detail": f"The user {current_user.nickname} has been deleted."}
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="You can't delete another user profile.")
     
     
     async def token(self, nickname, password):

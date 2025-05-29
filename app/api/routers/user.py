@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from app.database.redis import add_jti_to_blacklist
-from ..dependencies import UserServiceDep, return_the_access_token
+from ..dependencies import UserDep, UserServiceDep, return_the_access_token
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.database.models import User
@@ -22,13 +22,15 @@ async def create_user(user: CreateUser, service: UserServiceDep) -> User:
     return await service.add(user)
 
 @router.patch("/")
-async def update_user(id: UUID, user: UpdateUser, service: UserServiceDep) -> User:
+async def update_user(id: UUID, user: UpdateUser, service: UserServiceDep, current_user: UserDep) -> User:
+    if (id != current_user.id):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You can't edit the profile of another user.")
     updated_user = await service.update(id, user)
     return updated_user
 
 @router.delete("/")
-async def delete_user(user: DeleteUser, service: UserServiceDep):
-    return await service.delete(user)
+async def delete_user(user: DeleteUser, service: UserServiceDep, current_user: UserDep):
+    return await service.delete(user, current_user)
     
 @router.post("/login")
 async def login_user(request_form: Annotated[OAuth2PasswordRequestForm,
