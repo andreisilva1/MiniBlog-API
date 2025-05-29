@@ -24,11 +24,11 @@ class Tags(str, Enum):
     free_time = "Free Time"
     
    
-class Post(SQLModel, table=True):
-    __tablename__= "post"
+class Publication(SQLModel, table=True):
+    __tablename__= "publications"
     id: int | None = Field(default=None, primary_key=True)
     creator_id: UUID = Field(foreign_key="user.id")
-    creator: "User" = Relationship(back_populates="posts", sa_relationship_kwargs={"lazy": "selectin"})
+    creator: "User" = Relationship(back_populates="publications", sa_relationship_kwargs={"lazy": "selectin"})
     tag: Tags | None = Field(default=Tags.others)
     title: str = Field(max_length=100)
     description: str = Field(max_length=2000)
@@ -46,7 +46,7 @@ class User(SQLModel, table=True):
     name: str
     nickname: str = Field(index=True, unique=True)
     password_hashed: str
-    posts: List["Post"] = Relationship(back_populates="creator",
+    publications: List["Publication"] = Relationship(back_populates="creator",
                                      sa_relationship_kwargs={"lazy": "selectin",
                                             "cascade": "all, delete-orphan"})
     created_at: datetime

@@ -3,7 +3,7 @@ from typing import List
 from uuid import UUID
 from pydantic import BaseModel
 
-from app.database.models import Post
+from app.database.models import Publication
 
 
 class BaseUser(BaseModel):
@@ -16,7 +16,7 @@ class CreateUser(BaseUser):
     
 class ReadUser(BaseUser):
     created_at: datetime
-    posts: List[Post] = []
+    publications: List[Publication]
 
     
 class UpdateUser(BaseUser):
