@@ -1,10 +1,10 @@
 from datetime import datetime
-from typing import Annotated, List
+from typing import Annotated, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 import humanize
 
 from app.api.dependencies import PublicationServiceDep, SessionDep, UserDep
-from app.api.schemas.publication import CreatePublication, ReadPublication
+from app.api.schemas.publication import CreatePublication, PossibleCategoriesSearch, ReadPublication
 from app.database.models import Publication, User
 from app.database.session import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -27,13 +27,24 @@ async def get_current_user_publications(service: PublicationServiceDep, current_
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="You don't have any posts yet. Why not try?")
     return await convert_publication_to_readable_publication(publications_by_current_user, session)
 
-
-@router.get("/by-categories")
-async def get_publications_by_categories():
+@router.post("/by-categories")
+async def get_publications_by_categories(search_methods: Optional[PossibleCategoriesSearch] = None):
     pass
 
 @router.post("/like-post")
 async def like_publication_by_id():
+    pass
+
+@router.get("/liked-posts")
+async def get_liked_posts():
+    pass
+
+@router.post("/dislike-post")
+async def dislike_publication_by_id():
+    pass
+
+@router.get("/disliked-posts")
+async def get_disliked_posts():
     pass
 
 @router.post("/")
