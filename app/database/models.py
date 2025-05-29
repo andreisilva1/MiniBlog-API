@@ -35,8 +35,8 @@ class Publication(SQLModel, table=True):
     views: int = Field(default=0)
     likes: int = Field(default=0)
     dislikes: int = Field(default=0)
-    datetime: datetime
- 
+    published_at: datetime
+    last_update_at: datetime | None = Field(default=None)
     
 class User(SQLModel, table=True):
     __tablename__= "user"

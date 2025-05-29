@@ -5,17 +5,17 @@ from ..dependencies import UserDep, UserServiceDep, return_the_access_token
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.database.models import User
-from app.api.schemas.user import CreateUser, DeleteUser, UpdateUser
+from app.api.schemas.user import CreateUser, DeleteUser, PublicUser, UpdateUser
 from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
-@router.get("/")
-async def get_user(nickname: str, service: UserServiceDep) -> User:
-    user = await service.get(nickname)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No user found with the nickname provided.")
-    return user
+@router.get("/", response_model=PublicUser)
+async def get_user(current_user: UserDep):
+    if current_user:
+        return current_user
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No user authenticated. Why not create a new account and login?")
+
 
 @router.post("/signup")
 async def create_user(user: CreateUser, service: UserServiceDep) -> User:
