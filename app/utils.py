@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+
 from app.database.config import SecuritySettings as settings
 from uuid import uuid4
 import jwt

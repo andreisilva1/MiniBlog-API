@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import select
+from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.schemas.publication import CreatePublication
@@ -20,5 +20,9 @@ class PublicationService:
         query = await self.session.execute(select(Publication).where(Publication.creator_id == current_user.id))
         publications = query.scalars().all()
         return publications
+    
+    async def get_latest_publications(self):
+        latest_publications = await self.session.execute(select(Publication).order_by(desc(Publication.datetime)).limit(1))
+        return latest_publications.scalars().all()
         
         

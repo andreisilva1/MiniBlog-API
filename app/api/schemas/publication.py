@@ -1,8 +1,5 @@
-from typing import List
-import humanize
-from pydantic import BaseModel, Field
-from datetime import datetime
-from app.database.models import Tags, Publication
+from pydantic import BaseModel, Field, field_serializer
+from app.database.models import Tags
 
 class BasePublication(BaseModel):
     tag: Tags | None = Field(default=Tags.others)
@@ -19,7 +16,11 @@ class ReadPublication(BasePublication):
     likes: int
     dislikes: int
     datetime: str
-
     
+    @field_serializer("description")
+    def serialize_description(self, value, _info):
+            return value[:50] + "...Access the post to read more." if len(value) > 50 else value
+
+  
 class UpdatePublication(BasePublication):
     pass
