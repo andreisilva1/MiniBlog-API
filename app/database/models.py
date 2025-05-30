@@ -28,8 +28,11 @@ class Tags(str, Enum):
 class Blocked_Tags(SQLModel, table=True):
     user_id: UUID = Field(default=None, foreign_key="user.id", primary_key=True)
     tag: Tags = Field(sa_column_kwargs={"nullable": False}, primary_key=True)
-    users: Optional["User"] = Relationship(back_populates="blocked_tags")
+    users: Optional["User"] = Relationship(back_populates="blocked_tags")    
 
+class LikedPublicationAndUsers(SQLModel, table=True):
+    publication_id: Optional[int] = Field(default=None, foreign_key="publications.id", primary_key=True)
+    user_id: Optional[UUID] = Field(default=None, foreign_key="user.id", primary_key=True)
 
 class Publication(SQLModel, table=True):
     __tablename__ = "publications"
@@ -46,6 +49,7 @@ class Publication(SQLModel, table=True):
     dislikes: int = Field(default=0)
     published_at: datetime
     last_update_at: datetime | None = Field(default=None)
+    users_that_liked: List["User"] = Relationship(back_populates="liked_publications", link_model=LikedPublicationAndUsers)
 
 
 class User(SQLModel, table=True):
@@ -64,3 +68,5 @@ class User(SQLModel, table=True):
     created_at: datetime
 
     blocked_tags: List[Blocked_Tags] = Relationship(back_populates="users")
+    
+    liked_publications: List[Publication]  = Relationship(back_populates="users_that_liked", link_model=LikedPublicationAndUsers)

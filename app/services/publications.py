@@ -3,7 +3,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.schemas.publication import CreatePublication, DateSearch, UpdatePublication
+from app.api.schemas.publication import CreatePublication, DateSearch, ReadPublication, UpdatePublication
 from app.database.models import Publication, Tags, User
 
 
@@ -48,10 +48,7 @@ class PublicationService:
         publication = await self.get(id)
 
         if not publication:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No post found with the id provided.",
-            )
+            publication_id_not_found()
 
         if current_user.id != publication.creator_id:
             raise HTTPException(
@@ -92,10 +89,7 @@ class PublicationService:
     async def get_by_id(self, id: int):
         publication = await self.session.get(Publication, id)
         if not publication:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No publication with that id has been found.",
-            )
+            publication_id_not_found()
         return publication
 
     async def get_by_tag(self, tag: Tags):
@@ -134,6 +128,18 @@ class PublicationService:
         if not publications:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="No publication founded during that period of time.",
+                detail="No publication found during that period of time.",
             )
         return publications
+    
+    async def like(self, id: int, current_user: User) -> ReadPublication:
+        publication = await self.session.get(Publication, id)
+        if not publication:
+            publication_id_not_found()
+        publication.likes += 1
+        return publication
+
+
+
+def publication_id_not_found():
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No publication with that id has been found.")

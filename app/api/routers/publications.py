@@ -69,9 +69,9 @@ async def get_publications_by_days_of_posted(
     )
 
 
-@router.post("/like-post")
-async def like_publication_by_id():
-    pass
+@router.get("/like-post")
+async def like_publication_by_id(id: int, service: PublicationServiceDep, current_user: UserDep):
+    return {"message": "You liked the post!", "publication": await service.like(id, current_user)}
 
 
 @router.get("/liked-posts")
