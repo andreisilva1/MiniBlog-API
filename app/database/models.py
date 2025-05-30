@@ -24,12 +24,13 @@ class Tags(str, Enum):
     at_home = "At Home"
     free_time = "Free Time"
 
+
 class Blocked_Tags(SQLModel, table=True):
     user_id: UUID = Field(default=None, foreign_key="user.id", primary_key=True)
     tag: Tags = Field(sa_column_kwargs={"nullable": False}, primary_key=True)
     users: Optional["User"] = Relationship(back_populates="blocked_tags")
 
-    
+
 class Publication(SQLModel, table=True):
     __tablename__ = "publications"
     id: int | None = Field(default=None, primary_key=True)
@@ -61,5 +62,5 @@ class User(SQLModel, table=True):
         sa_relationship_kwargs={"lazy": "selectin", "cascade": "all, delete-orphan"},
     )
     created_at: datetime
-    
+
     blocked_tags: List[Blocked_Tags] = Relationship(back_populates="users")

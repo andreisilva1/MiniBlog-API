@@ -18,8 +18,10 @@ SessionDep = Annotated[AsyncSession, Depends(get_session)]
 def create_user_service(session: SessionDep):
     return UserService(session)
 
+
 def create_block_service(session: SessionDep):
     return BlockService(session)
+
 
 def create_publication_service(session: SessionDep):
     return PublicationService(session)

@@ -1,14 +1,15 @@
+from enum import Enum
 from pydantic import BaseModel, Field, field_serializer
 from app.database.models import Tags
 
 
 class BasePublication(BaseModel):
-    tag: Tags | None = Field(default=Tags.others)
     title: str
     description: str
 
 
 class CreatePublication(BasePublication):
+    tag: Tags | None = Field(default=Tags.others)
     pass
 
 
@@ -33,3 +34,8 @@ class ReadPublication(BasePublication):
 class UpdatePublication(BaseModel):
     title: str
     description: str
+
+
+class DateSearch(str, Enum):
+    last = "last"
+    up = "up"

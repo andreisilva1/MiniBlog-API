@@ -1,15 +1,18 @@
 from datetime import datetime
 from typing import Annotated, List
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.params import Query
 import humanize
 
 from app.api.dependencies import PublicationServiceDep, SessionDep, UserDep
 from app.api.schemas.publication import (
+    BasePublication,
     CreatePublication,
+    DateSearch,
     ReadPublication,
     UpdatePublication,
 )
-from app.database.models import Publication, User
+from app.database.models import Publication, Tags, User
 from app.database.session import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -40,9 +43,30 @@ async def get_current_user_publications(
     )
 
 
-@router.post("/by-categories")
-async def get_publications_by_categories():
-    pass
+@router.get("/id")
+async def get_publications_by_id(id: int, service: PublicationServiceDep):
+    return await service.get_by_id(id)
+
+
+@router.get("/tag")
+async def get_publications_by_tag(tag: Tags, service: PublicationServiceDep):
+    return await service.get_by_tag(tag)
+
+
+@router.get("/days")
+async def get_publications_by_days_of_posted(
+    session: SessionDep,
+    service: PublicationServiceDep,
+    days: int,
+    date_of_post: DateSearch = Query(
+        ...,
+        description='Use "last" to post in the last x days and "up" to posts up to x days ago',
+    ),
+):
+    publications_by_date = await service.get_by_days(days, date_of_post)
+    return await convert_publication_to_readable_publication(
+        publications_by_date, session
+    )
 
 
 @router.post("/like-post")
@@ -68,9 +92,11 @@ async def get_disliked_posts():
 @router.post("/")
 async def create_publication(
     user: UserDep,
-    publication: CreatePublication,
+    publication: BasePublication,
     session: Annotated[AsyncSession, Depends(get_session)],
+    tag: Tags,
 ):
+    publication = CreatePublication(**publication.model_dump(), tag=tag)
     return await PublicationService(session).add(publication, user)
 
 

@@ -1,10 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from fastapi import HTTPException, status
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.schemas.publication import CreatePublication, UpdatePublication
-from app.database.models import Publication, User
+from app.api.schemas.publication import CreatePublication, DateSearch, UpdatePublication
+from app.database.models import Publication, Tags, User
 
 
 class PublicationService:
@@ -88,3 +88,52 @@ class PublicationService:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="You cannot delete a post that hasn't been created by you.",
         )
+
+    async def get_by_id(self, id: int):
+        publication = await self.session.get(Publication, id)
+        if not publication:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No publication with that id has been found.",
+            )
+        return publication
+
+    async def get_by_tag(self, tag: Tags):
+        query = await self.session.execute(
+            select(Publication).where(Publication.tag == tag)
+        )
+        publications = query.scalars().all()
+        if not publications:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No publication with that tag has been posted yet. Maybe you can be the first? :)",
+            )
+        return publications
+
+    async def get_by_days(self, days: int, date_of_post: DateSearch):
+        if date_of_post not in DateSearch:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="A error occurred. Try again with one of the pre-determined options.",
+            )
+        if date_of_post == DateSearch.last:
+            query = await self.session.execute(
+                select(Publication).where(
+                    Publication.published_at >= datetime.now() - timedelta(days=days)
+                )
+            )
+
+        elif date_of_post == DateSearch.up:
+            query = await self.session.execute(
+                select(Publication).where(
+                    Publication.published_at <= datetime.now() - timedelta(days=days)
+                )
+            )
+
+        publications = query.scalars().all()
+        if not publications:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No publication founded during that period of time.",
+            )
+        return publications
