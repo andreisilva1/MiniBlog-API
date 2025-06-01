@@ -30,7 +30,8 @@ async def get_latest_publications(service: PublicationServiceDep, session: Sessi
 
 @router.get("/me", response_model=List[ReadPublication])
 async def get_current_user_publications(
-    service: PublicationServiceDep, current_user: UserDep, session: SessionDep):
+    service: PublicationServiceDep, current_user: UserDep, session: SessionDep
+):
     publications_by_current_user = await service.get_my_publications(current_user)
     if not publications_by_current_user:
         raise HTTPException(
@@ -43,19 +44,26 @@ async def get_current_user_publications(
 
 
 @router.get("/id", response_model=ReadPublication)
-async def get_publications_by_id(id: int, service: PublicationServiceDep, session: SessionDep):
+async def get_publications_by_id(
+    id: int, service: PublicationServiceDep, session: SessionDep
+):
     return await service.get_by_id(id)
 
 
 @router.get("/tag")
-async def get_publications_by_tag(tag: Tags, service: PublicationServiceDep, session: SessionDep):
-    return await convert_publication_to_readable_publication(await service.get_by_tag(tag), session)
+async def get_publications_by_tag(
+    tag: Tags, service: PublicationServiceDep, session: SessionDep
+):
+    return await convert_publication_to_readable_publication(
+        await service.get_by_tag(tag), session
+    )
 
 
 @router.get("/days")
 async def get_publications_by_days_of_posted(
     service: PublicationServiceDep,
-    days: int, session: SessionDep,
+    days: int,
+    session: SessionDep,
     date_of_post: DateSearch = Query(
         ...,
         description='Use "last" to post in the last x days and "up" to posts up to x days ago',
@@ -68,31 +76,32 @@ async def get_publications_by_days_of_posted(
 
 
 @router.get("/like-post")
-async def like_publication_by_id(id: int, service: PublicationServiceDep, current_user: UserDep):
-    publication = await service.like(id, current_user)
-    if not publication:
-        return {"message": "You liked the post!", "publication": await service.like(id, current_user)}
-    return {"message": "You remove your like from this post."}
-
+async def like_publication_by_id(
+    id: int, service: PublicationServiceDep, current_user: UserDep
+):
+    return await service.like(id, current_user)
 
 
 @router.get("/liked-posts")
-async def get_liked_posts(current_user: UserDep, service: PublicationServiceDep, session: SessionDep):
+async def get_liked_posts(
+    current_user: UserDep, service: PublicationServiceDep, session: SessionDep
+):
     liked_posts = await service.get_liked_publications(current_user)
     return await convert_publication_to_readable_publication(liked_posts, session)
 
 
 @router.get("/dislike-post")
-async def dislike_publication_by_id(id: int, current_user: UserDep, service: PublicationServiceDep):
-    publication = await service.dislike(id, current_user)
-    if not publication:
-        return {"message": "You disliked the post!", "publication": await service.dislike(id, current_user)}
-    return {"message": "You remove your dislike from this post."}
+async def dislike_publication_by_id(
+    id: int, current_user: UserDep, service: PublicationServiceDep
+):
+    return await service.dislike(id, current_user)
 
 
 @router.get("/disliked-posts")
-async def get_disliked_posts():
-    pass
+async def get_disliked_posts(service: PublicationServiceDep, current_user: UserDep, session: SessionDep):
+    disliked_posts = service.get_disliked_posts(current_user)
+    return await convert_publication_to_readable_publication(disliked_posts, session)
+
 
 
 @router.post("/")
