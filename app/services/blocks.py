@@ -38,7 +38,7 @@ class BlockService:
             else:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Erro ao desbloquear tag.",
+                    detail="A error ocurred when disblock tag, try again.",
                 )
 
         new_link = Blocked_Tags(user_id=current_user.id, tag=tag_name)

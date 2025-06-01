@@ -4,7 +4,7 @@ from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.schemas.publication import CreatePublication, DateSearch, ReadPublication, UpdatePublication
-from app.database.models import Publication, Tags, User
+from app.database.models import LikedPublicationAndUsers, Publication, Tags, User
 
 
 class PublicationService:
@@ -136,7 +136,14 @@ class PublicationService:
         publication = await self.session.get(Publication, id)
         if not publication:
             publication_id_not_found()
-        publication.likes += 1
+        existent_link = await self.session.execute(select(LikedPublicationAndUsers).where(LikedPublicationAndUsers.publication_id == id, LikedPublicationAndUsers.user_id == current_user.id))
+        if existent_link:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You already liked that post.")
+        new_link = LikedPublicationAndUsers(publication_id=publication.id, user_id=current_user.id)
+        self.session.add(new_link)
+        await self.session.commit()
+        await self.session.refresh(new_link)
+        publication.likes+=1
         return publication
 
 

@@ -127,7 +127,7 @@ async def delete_publication(
 
 async def convert_publication_to_readable_publication(
     publications: List[Publication], session: SessionDep
-):
+) -> List[ReadPublication]:
     result = []
     for publication in publications:
         creator = await session.get(entity=User, ident=publication.creator_id)
