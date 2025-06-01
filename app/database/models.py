@@ -34,6 +34,10 @@ class LikedPublicationAndUsers(SQLModel, table=True):
     publication_id: Optional[int] = Field(default=None, foreign_key="publications.id", primary_key=True)
     user_id: Optional[UUID] = Field(default=None, foreign_key="user.id", primary_key=True)
 
+class DislikedPublicationAndUsers(SQLModel, table=True):
+    publication_id: Optional[int] = Field(default=None, foreign_key="publications.id", primary_key=True)
+    user_id: Optional[UUID] = Field(default=None, foreign_key="user.id", primary_key=True)  
+    
 class Publication(SQLModel, table=True):
     __tablename__ = "publications"
     id: int | None = Field(default=None, primary_key=True)
@@ -50,6 +54,7 @@ class Publication(SQLModel, table=True):
     published_at: datetime
     last_update_at: datetime | None = Field(default=None)
     users_that_liked: List["User"] = Relationship(back_populates="liked_publications", link_model=LikedPublicationAndUsers)
+    users_that_disliked: List["User"] = Relationship(back_populates="disliked_publications", link_model=DislikedPublicationAndUsers)
 
 
 class User(SQLModel, table=True):
@@ -70,3 +75,5 @@ class User(SQLModel, table=True):
     blocked_tags: List[Blocked_Tags] = Relationship(back_populates="users")
     
     liked_publications: List[Publication]  = Relationship(back_populates="users_that_liked", link_model=LikedPublicationAndUsers)
+    
+    disliked_publications: List[Publication] = Relationship(back_populates="users_that_disliked", link_model=DislikedPublicationAndUsers)
