@@ -11,9 +11,7 @@ async def create_db_tables():
     async with engine.begin() as connection:
         from .models import User, Publication  # noqa
 
-        print("Criando tabelas no banco...")
         await connection.run_sync(SQLModel.metadata.create_all)
-        print("Tabelas criadas.")
 
 
 async_session = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
