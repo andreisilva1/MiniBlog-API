@@ -71,8 +71,6 @@ A back-end API built with FastAPI, PostgreSQL and Redis for managing a MiniBlog 
 
 ## Installation & Local Setup
 
-Siga os passos abaixo para configurar e executar o MiniBlog API em seu ambiente local:
-
 1. **Clone the repository:**
 	```
 	bash
