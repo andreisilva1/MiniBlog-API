@@ -88,7 +88,7 @@ A back-end API built with FastAPI, PostgreSQL and Redis for managing a MiniBlog 
 * **Windows:**
 	```
 	python -m venv venv
-	.venv\scripts\activate
+	venv\scripts\activate
 	```
   
  3. **Install dependencies:**
@@ -97,7 +97,7 @@ A back-end API built with FastAPI, PostgreSQL and Redis for managing a MiniBlog 
 	```
 
 3. **Configure environment variables:** 
-* Copy `.env.example` to .env
+* Copy `.env.example` to `.env`
  * Fill in your local credentials (ex: PostgreSQL connection and Redis)
 
 
