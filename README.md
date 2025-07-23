@@ -106,4 +106,5 @@ A back-end API built with FastAPI, PostgreSQL and Redis for managing a MiniBlog 
  * FastAPI development mode: ``` fastapi dev run ``` 
 
 
-5. [Click here to access the interactive API Scalar docs]([http://localhost:8000/)
+5. **Access the interactive API Scalar docs:**
+http://localhost:8000/
