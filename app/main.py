@@ -11,7 +11,12 @@ async def lifespan_handler(app: FastAPI):
     yield
 
 
-app = FastAPI(lifespan=lifespan_handler)
+app = FastAPI(lifespan=lifespan_handler, 
+              contact={
+            "name": "Andrei Silva",
+            "url": "https://github.com/andreisilva1",
+            "email": "andrei.pydev@gmail.com"}
+        )
 app.include_router(master_router)
 
 
