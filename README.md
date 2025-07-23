@@ -5,8 +5,6 @@ A back-end API built with FastAPI, PostgreSQL and Redis for managing a MiniBlog 
 
 ## 🚀 Technologies
 
-Este projeto é construído com as seguintes tecnologias e ferramentas:
-
 * **Python 3.12+**
 
 * **FastAPI**
